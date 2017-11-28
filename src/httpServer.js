@@ -225,12 +225,13 @@ function writeFile(repositorypath, filepath, req, res) {
 }
 
 function readFile(repositorypath, filepath, res) {
-  var sPath = repositorypath + "/" +filepath;
+  // var sPath = repositorypath + "/" +filepath;
+  var sPath= repositorypath.rename("//","/")
   console.log("read file " + sPath);
   fs.exists(sPath, function(exists) {
     if (!exists) {
       res.writeHead(404);
-      res.end(repositorypath+"\n"+filepath);
+      res.end(sPath);
     } else {
       fs.stat(sPath, function(err, stats) {
         if (err !== null) {
