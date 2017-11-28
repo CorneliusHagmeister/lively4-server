@@ -230,7 +230,7 @@ function readFile(repositorypath, filepath, res) {
   fs.exists(sPath, function(exists) {
     if (!exists) {
       res.writeHead(404);
-      res.end(sPath+"\n");
+      res.end(repositorypath+"\n"+filepath);
     } else {
       fs.stat(sPath, function(err, stats) {
         if (err !== null) {
