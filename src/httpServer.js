@@ -7,7 +7,7 @@ var mkdirp = require("mkdirp");
 var async = require("async");
 var argv = require("argv");
 var child_process = require("child_process");
-var exec = child_process.exec; 
+var exec = child_process.exec;
 var slash = require("slash");
 
 // this adds a timestamp to all log messages
@@ -66,7 +66,7 @@ var args = argv.option(options).run();
 var port = args.options.port || 8080;
 var sSourceDir = args.options.directory || ".";
 var indexFiles = args.options['index-files'];
-var lively4dir = args.options.directory; 
+var lively4dir = args.options.directory;
 var server = args.options.server || "~/lively4-server";
 var bashBin = args.options['bash-bin'] || "bash";
 var cygwin = args.options['cygwin'];
@@ -85,7 +85,7 @@ if (cygwin) {
 if (indexFiles) {
  var lunrSearch = require("./lively4-search/shared/lunr-search.js");
 } else {
-  console.log("[search] indexing files is disabled");  
+  console.log("[search] indexing files is disabled");
 }
 
 if (indexFiles) {
@@ -121,7 +121,7 @@ function writeFile(repositorypath, filepath, req, res) {
     req.setEncoding('binary')
   }
   // }
-  
+
   //read chunks of data and store it in buffer
   req.on('data', function(chunk) {
     fullBody += chunk.toString();
@@ -141,10 +141,10 @@ function writeFile(repositorypath, filepath, req, res) {
     } else {
       var lastVersion =  req.headers["lastversion"];
       var currentVersion = await getVersion(repositorypath, filepath)
-      
+
       console.log("last version: " + lastVersion);
       console.log("current version: " + currentVersion);
-      
+
       // we have version information and there is a conflict
       if (lastVersion && currentVersion && lastVersion !== currentVersion) {
         console.log("[writeFile] CONFLICT DETECTED")
@@ -153,11 +153,11 @@ function writeFile(repositorypath, filepath, req, res) {
           'conflictversion': currentVersion
         });
         res.end("Writing conflict detected: " + currentVersion);
-        return 
-      } 
-      
+        return
+      }
+
       console.log("size " + fullBody.length)
-      
+
       // console.log("fullBody: " + fullBody)
       fs.writeFile(fullpath, fullBody, (fullpath.match(isTextRegEx) ? undefined : "binary"), function(err) {
         if (err) {
@@ -165,7 +165,7 @@ function writeFile(repositorypath, filepath, req, res) {
           console.log(err);
           return;
         }
-        
+
         if (indexFiles) {
           try {
             lunrSearch.addFile(fullpath); // #TODO #BUG what path does lunr accept?
@@ -174,16 +174,16 @@ function writeFile(repositorypath, filepath, req, res) {
           }
         }
         if (autoCommit) {
-        
+
           var username =      req.headers.gitusername;
           var email =         req.headers.gitemail;
           // var password =      req.headers.gitpassword; // not used yet
-        
+
           var authCmd = "";
           if (username) authCmd += `git config user.name '${username}'; `
           if (email) authCmd += `git config user.email '${email}'; `
           console.log("EMAIL " + email + " USER " + username)
-          
+
           // #TODO maybe we should ask for github credetials here too?
           let cmd  = `cd "${repositorypath}"; ${authCmd} git add "${filepath}"; git commit -m "AUTO-COMMIT ${filepath}"`;
           console.log("[AUTO-COMMIT] " + cmd);
@@ -196,7 +196,7 @@ function writeFile(repositorypath, filepath, req, res) {
               res.end("ERROR: " + stderr);
             } else {
               // return the hash for the commit, we just created
-              
+
               let fileVersionCmd = `cd "${repositorypath}"; git log -n 1 --pretty=format:%H -- "${filepath}"`;
               console.log("cmd: " + fileVersionCmd);
               exec(fileVersionCmd, (error, stdout, stderr) => {
@@ -230,7 +230,7 @@ function readFile(repositorypath, filepath, res) {
   fs.exists(sPath, function(exists) {
     if (!exists) {
       res.writeHead(404);
-      res.end("File not found!\n");
+      res.end(sPath+"\n");
     } else {
       fs.stat(sPath, function(err, stats) {
         if (err !== null) {
@@ -274,7 +274,7 @@ function readDirectory(aPath, res, contentType){
       type: "directory",
       contents: []
     };
-    
+
     var checkEnd = () => {
          // is there a better way for synchronization???
         if (dir.contents.length === files.length) {
@@ -410,7 +410,7 @@ function listOptions(sSourcePath, sPath, req, res) {
       readDirectory(sSourcePath, res);
     } else if (stats.isFile()) {
       if (req.headers["showversions"] == "true") {
-        var repositorypath = sSourceDir  + sPath.replace(/^\/(.*?)\/.*/,"$1") 
+        var repositorypath = sSourceDir  + sPath.replace(/^\/(.*?)\/.*/,"$1")
         var filepath = sPath.replace(/^\/.*?\/(.*)/,"$1")
         return listVersions(repositorypath, filepath, res)
       }
@@ -435,10 +435,10 @@ function searchFiles(sPath, req, res) {
   var excludes = ".git,"+req.headers["excludes"];
 
   if (sPath.match(/\/_search\/files/)) {
-    var cmd = "cd " +  lively4DirUnix + "; " 
-    cmd += "find " + rootdirs.replace(/,/g," ") + " -type f " 
+    var cmd = "cd " +  lively4DirUnix + "; "
+    cmd += "find " + rootdirs.replace(/,/g," ") + " -type f "
     cmd += excludes.split(",").map( function(ea) { return ' -not -wholename "*' + ea + '*"' }).join(" ")
-    cmd += ' | while read file; do grep -H "' + pattern + '" "$file" ; done | cut -b 1-200' 
+    cmd += ' | while read file; do grep -H "' + pattern + '" "$file" ; done | cut -b 1-200'
     return respondWithCMD(cmd, res)
   } else {
       res.writeHead(200);
@@ -488,13 +488,13 @@ function gitControl(sPath, req, res, cb) {
     respondWithCMD(cmd, res, function() {
     RepositoryInSync[repository] = undefined;
     }, dryrun);
-    
+
   } else if (sPath.match(/\/_git\/resolve/)) {
     cmd = `${server}/bin/lively4resolve.sh '`+ lively4DirUnix + "/" + repository + "'";
     respondWithCMD(cmd, res, null, dryrun);
 
   } else if (sPath.match(/\/_git\/status/)) {
-    cmd = `cd ${lively4DirUnix}/${repository}; 
+    cmd = `cd ${lively4DirUnix}/${repository};
       git status; git log HEAD...origin/${branch}  --pretty="format:%h\t%aN\t%cD\t%f"`;
     respondWithCMD(cmd, res, null, dryrun);
 
@@ -596,7 +596,7 @@ function searchFilesWithIndex(sPath, req, res) {
   var location = query.location;
 
   if (sPath.match(/\/api\/search\/createIndex.*/)) {
-    
+
     try {
       lunrSearch.createIndex(location).then(() => {
         // index is available
@@ -655,11 +655,11 @@ class Server {
     this.port = port
     this.server = server
   }
-  
+
   static get lively4dir() {
     return lively4dir
   }
-  
+
   static set lively4dir(path) {
     console.log("set lively4dir to:" + path)
     sSourceDir = path;
@@ -667,11 +667,11 @@ class Server {
     lively4DirUnix = path;
     return lively4dir
   }
-  
+
   static get autoCommit() {
     return autoCommit
   }
-  
+
   static set autoCommit(bool) {
     console.log("set autoCommit to: " + bool)
     return autoCommit = bool
@@ -683,39 +683,39 @@ class Server {
     console.log("Port: "+ this.port);
     console.log("Indexing: "+ indexFiles);
     console.log("Auto-commit: "+ autoCommit);
-    
+
     http.createServer(function(req, res) {
       // Set CORS headers
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Request-Method', '*');
       res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, DELETE, PUT');
       res.setHeader('Access-Control-Allow-Headers', '*');
-    
+
       var oUrl = url.parse(req.url, true, false);
       console.log("pathname: " + oUrl.pathname);
       var pathname = oUrl.pathname;
-    
+
       // use slash to avoid conversion from '\' to '/' on Windows
       var sPath = slash(path.normalize(oUrl.pathname));
-      
-      
+
+
       // sPath = sPath.replace(/%20/g, " "); //#TODO this is poor unicode handling...
       sPath = decodeURI(sPath)
-      
+
       console.log("sPath: " + sPath)
-    
+
       var fileversion =  req.headers["fileversion"]
       console.log("fileversion: " + fileversion)
-      var repositorypath = sSourceDir  + sPath.replace(/^\/(.*?)\/.*/,"$1") 
+      var repositorypath = sSourceDir  + sPath.replace(/^\/(.*?)\/.*/,"$1")
       var filepath = sPath.replace(/^\/.*?\/(.*)/,"$1")
-    
+
       if (breakOutRegex.test(sPath) === true) {
         res.writeHead(500);
         res.end("Your not allowed to access files outside the pages storage area\n");
         return;
       }
-      
-    
+
+
       if (pathname.match(/\/_meta\//)) {
         return metaControl(pathname, req, res)
       }
