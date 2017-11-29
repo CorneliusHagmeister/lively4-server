@@ -113,6 +113,7 @@ var isTextRegEx = /(txt)|(md)|(js)|(html)|(svg)$/
 function writeFile(repositorypath, filepath, req, res) {
   var fullpath = path.join(repositorypath, filepath);
   //fullpath= fullpath.replace("//","/")
+  res.writeHead(404);
   res.end(fullpath)
   return
   console.log("write file: " + fullpath);
@@ -740,12 +741,14 @@ class Server {
           readFile(repositorypath, filepath, res);
         }
       } else if (req.method == "PUT") {
+        console.log("Trying to write file");
         writeFile(repositorypath, filepath, req, res);
       } else if (req.method == "DELETE") {
         deleteFile(sPath, res);
       } else if (req.method == "MKCOL") {
         createDirectory(sPath, res);
       } else if (req.method == "OPTIONS") {
+        console.log("Why are we trying to OPTIONS something?");
         listOptions(sSourcePath, sPath, req, res)
       }
     }).listen(this.port, function(err) {
