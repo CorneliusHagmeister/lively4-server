@@ -231,7 +231,7 @@ function writeFile(repositorypath, filepath, req, res) {
 function readFile(repositorypath, filepath, res) {
   // var sPath = repositorypath + "/" +filepath;
   var sPath= repositorypath.replace("//","/")
-  console.log("read file " + sPath);
+  console.log("read file (forked version)" + sPath);
   fs.exists(sPath, function(exists) {
     if (!exists) {
       res.writeHead(404);
