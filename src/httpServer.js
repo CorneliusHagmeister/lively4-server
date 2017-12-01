@@ -230,7 +230,7 @@ function writeFile(repositorypath, filepath, req, res) {
 
 function readFile(repositorypath, filepath, res) {
   // var sPath = repositorypath + "/" +filepath;
-  var sPath= repositorypath.replace("//","/")
+  var sPath= repositorypath.replace(/\/\//g,"/")
   console.log("read file (forked version)" + sPath);
   fs.exists(sPath, function(exists) {
     if (!exists) {
@@ -749,6 +749,7 @@ class Server {
         createDirectory(sPath, res);
       } else if (req.method == "OPTIONS") {
         console.log("Why are we trying to OPTIONS something?");
+        console.log(req);
         listOptions(sSourcePath, sPath, req, res)
       }
     }).listen(this.port, function(err) {
