@@ -691,10 +691,10 @@ class Server {
 
     http.createServer(function(req, res) {
       // Set CORS headers
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Request-Method', '*');
-      res.setHeader('Access-Control-Allow-Methods', '*');
-      res.setHeader('Access-Control-Allow-Headers', '*');
+      res.setHeader('Access-Control-Allow-Origin', 'GET, POST, PUT, DELETE, MKCOL, OPTIONS');
+      res.setHeader('Access-Control-Request-Method', 'GET, POST, PUT, DELETE, MKCOL, OPTIONS');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, , MKCOL, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'GET, POST, PUT, DELETE, MKCOL, OPTIONS');
 
       var oUrl = url.parse(req.url, true, false);
       console.log("pathname: " + oUrl.pathname);
