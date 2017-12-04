@@ -691,10 +691,10 @@ class Server {
 
     http.createServer(function(req, res) {
       // Set CORS headers
-      res.setHeader('Access-Control-Allow-Origin', 'GET, POST, PUT, DELETE, MKCOL, OPTIONS');
-      res.setHeader('Access-Control-Request-Method', 'GET, POST, PUT, DELETE, MKCOL, OPTIONS');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, , MKCOL, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'GET, POST, PUT, DELETE, MKCOL, OPTIONS');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Request-Method', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, DELETE, PUT');
+      res.setHeader('Access-Control-Allow-Headers', '*');
 
       var oUrl = url.parse(req.url, true, false);
       console.log("pathname: " + oUrl.pathname);
@@ -749,7 +749,7 @@ class Server {
         createDirectory(sPath, res);
       } else if (req.method == "OPTIONS") {
         console.log("Why are we trying to OPTIONS something?");
-        console.log(req.headers['access-control-request-method']);
+        console.log(req.headers);
         listOptions(sSourcePath, sPath, req, res)
       }
     }).listen(this.port, function(err) {
