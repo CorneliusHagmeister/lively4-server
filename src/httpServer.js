@@ -735,6 +735,9 @@ class Server {
       }
       var sSourcePath = path.join(sSourceDir, sPath);
       if (req.method == "GET") {
+        console.log("###########################\n" + filePath + "\n###########################\n");
+        console.log(filePath.indexOf('?data='));
+        console.log(filePath.substring(filePath.indexOf('?data=') + 6);
         if (fileversion && fileversion != "undefined") {
           readFileVersion(repositorypath, filepath, fileversion, res)
         } else {
