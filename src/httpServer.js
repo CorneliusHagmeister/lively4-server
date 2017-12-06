@@ -690,11 +690,22 @@ class Server {
     console.log("Auto-commit: "+ autoCommit);
 
     http.createServer(function(req, res) {
+      // // Set CORS headers
+      // res.setHeader('Access-Control-Allow-Origin', '*');
+      // res.setHeader('Access-Control-Request-Method', '*');
+      // res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, DELETE, PUT');
+      // res.setHeader('Access-Control-Allow-Headers', '*');
       // Set CORS headers
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Request-Method', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, DELETE, PUT');
-      res.setHeader('Access-Control-Allow-Headers', '*');
+     res.setHeader('Access-Control-Allow-Origin', '*');
+     res.setHeader("Access-Control-Allow-Credentials", "true");
+     res.setHeader('Access-Control-Request-Method', '*');
+     res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,PATCH,DELETE,MKCOL');
+     // res.setHeader('Access-Control-Allow-Headers', '*');
+     // res.setHeader('Access-Control-Allow-Headers', req.header.origin);
+     // res.setHeader('Access-Control-Allow-Headers', 'authorization, content-type');
+     res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers,lastversion");
+     res.setHeader('Access-Control-Max-Age', '1728000');
+
 
       var oUrl = url.parse(req.url, true, false);
       console.log("pathname: " + oUrl.pathname);
