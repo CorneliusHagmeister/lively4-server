@@ -112,7 +112,9 @@ var isTextRegEx = /(txt)|(md)|(js)|(html)|(svg)$/
 //write file to disk
 function writeFile(repositorypath, filepath, req, res) {
   var fullpath = path.join(repositorypath, filepath);
-  //fullpath= fullpath.replace("//","/")
+  fullpath= fullpath.replace(/\/\//g,"/")
+  console.log(filepath);
+  console.log(repositorypath);
   // res.writeHead(404);
   // res.end(fullpath)
   // return
