@@ -192,7 +192,8 @@ function writeFile(repositorypath, filepath, req, res) {
           console.log("EMAIL " + email + " USER " + username)
 
           // #TODO maybe we should ask for github credetials here too?
-          let cmd  = `cd "${repositorypath}"; ${authCmd} git add "${filepath}"; git commit -m "AUTO-COMMIT ${filepath}"`;
+          // let cmd  = `cd "${repositorypath}"; ${authCmd} git add "${filepath}"; git commit -m "AUTO-COMMIT ${filepath}"`;
+          let cmd  = `cd "${repositorypath}";"`;
           console.log("[AUTO-COMMIT] " + cmd);
           exec(cmd, (error, stdout, stderr) => {
             console.log("stdout: " + stdout);
