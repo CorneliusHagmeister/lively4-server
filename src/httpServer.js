@@ -113,9 +113,9 @@ var isTextRegEx = /(txt)|(md)|(js)|(html)|(svg)$/
 function writeFile(repositorypath, filepath, req, res) {
   var fullpath = path.join(repositorypath, filepath);
   //fullpath= fullpath.replace("//","/")
-  res.writeHead(404);
-  res.end(fullpath)
-  return
+  // res.writeHead(404);
+  // res.end(fullpath)
+  // return
   console.log("write file: " + fullpath);
   var fullBody = '';
   // if (filepath.match(/png$/)) {
