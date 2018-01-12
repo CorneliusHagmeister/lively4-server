@@ -717,11 +717,6 @@ class Server {
       var oUrl = url.parse(req.url, true, false);
       console.log("pathname: " + oUrl.pathname);
       var pathname = oUrl.pathname;
-      var user = oUrl.user
-
-      if(pathname.indexOf(user)!=pathname.length-user.length){
-        pathname=pathname+"-"+user
-      }
 
       // use slash to avoid conversion from '\' to '/' on Windows
       var sPath = slash(path.normalize(oUrl.pathname));
@@ -767,6 +762,11 @@ class Server {
           readFile(repositorypath, filepath, res);
         }
       } else if (req.method == "PUT") {
+        var user = oUrl.user
+
+        if(pathname.indexOf(user)!=pathname.length-user.length){
+          pathname=pathname+"-"+user
+        }
         console.log("Trying to write file");
         writeFile(repositorypath, filepath, req, res);
       } else if (req.method == "DELETE") {
