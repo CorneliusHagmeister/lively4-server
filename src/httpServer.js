@@ -139,6 +139,11 @@ function writeFile(repositorypath, filepath, req, res) {
 
   //after transmission, write file to disk
   req.on('end', async function() {
+    var username=JSON.parse(fullBody).username
+    fullBody=JSON.parse(fullBody)
+    if(!fullpath.endsWith(username)){
+      fullpath=fullpath+"-"+username
+    }
     if (fullpath.match(/\/$/)){
       mkdirp(fullpath, function(err) {
         if (err) {
@@ -762,11 +767,6 @@ class Server {
           readFile(repositorypath, filepath, res);
         }
       } else if (req.method == "PUT") {
-        var user = oUrl.user
-
-        if(pathname.indexOf(user)!=pathname.length-user.length){
-          pathname=pathname+"-"+user
-        }
         console.log("Trying to write file");
         writeFile(repositorypath, filepath, req, res);
       } else if (req.method == "DELETE") {
