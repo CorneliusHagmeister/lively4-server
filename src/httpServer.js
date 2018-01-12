@@ -717,6 +717,11 @@ class Server {
       var oUrl = url.parse(req.url, true, false);
       console.log("pathname: " + oUrl.pathname);
       var pathname = oUrl.pathname;
+      var user = oUrl.user
+
+      if(pathname.indexOf(user)!=pathname.length-user.length){
+        pathname=pathname+"-"+user
+      }
 
       // use slash to avoid conversion from '\' to '/' on Windows
       var sPath = slash(path.normalize(oUrl.pathname));
