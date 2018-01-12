@@ -139,8 +139,8 @@ function writeFile(repositorypath, filepath, req, res) {
 
   //after transmission, write file to disk
   req.on('end', async function() {
-    var username=JSON.parse(fullBody).username
-    fullBody=JSON.parse(fullBody)
+    var username=JSON.parse(fullBody).user
+    fullBody=JSON.parse(fullBody).data
     if(!fullpath.endsWith(username)){
       fullpath=fullpath+"-"+username
     }
