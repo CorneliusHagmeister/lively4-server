@@ -141,9 +141,9 @@ function writeFile(repositorypath, filepath, req, res) {
   req.on('end', async function() {
     var username=JSON.parse(fullBody).user
     fullBody=JSON.parse(fullBody).data
-    if(!fullpath.endsWith(username)){
-      fullpath=fullpath+"-"+username
-    }
+    // if(!fullpath.endsWith(username)){
+    //   fullpath=fullpath+"-"+username
+    // }
     if (fullpath.match(/\/$/)){
       mkdirp(fullpath, function(err) {
         if (err) {
