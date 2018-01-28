@@ -12,7 +12,9 @@ var _regenerator = require("babel-runtime/regenerator");
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
 
 var http = require("http");
 var fs = require("fs");
@@ -126,9 +128,9 @@ function writeFile(repositorypath, filepath, req, res) {
   repositorypath = repositorypath.substring(0, repositorypath.length - filepath.length - 1);
   // var fullpath = path.join(repositorypath, filepath);
   // fullpath = fullpath.replace(/\/\//g, "/");
-  var sPath = repositorypath.replace(/\/\//g,"/");
+  var sPath = repositorypath.replace(/\/\//g, "/");
   if (repositorypath.indexOf('.') === -1 && filepath.indexOf('.') > -1) {
-      sPath = path.join(repositorypath, filepath);
+    sPath = path.join(repositorypath, filepath);
   }
   var fullpath = sPath.replace(/\\\\/g, "\\");
 
@@ -152,47 +154,54 @@ function writeFile(repositorypath, filepath, req, res) {
 
   //after transmission, write file to disk
 
-  req.on('end', function() {
+  req.on('end', function () {
     // var username=fullBody.user
-    fullBody=JSON.parse(fullBody.data)
+    fullBody = JSON.parse(fullBody.data)
     fs.writeFile(fullpath, fullBody, {flag: 'wx'}, function (writeErr) {
+      if (writeErr) {
+        res.writeHead(400)
+        res.end(writeErr)
+      } else {
+        res.writeHead(200)
+        res.end("Successfully saved")
+      }
+    }
+  })
 
-    })
-
-    // if (fullpath.match(/\/$/)){
-    //   mkdirp(fullpath, function(err) {
-    //     if (err) {
-    //       console.log("Error creating dir: " + err);
-    //     }
-    //     console.log("mkdir " + fullpath);
-    //     res.writeHead(200, "OK");
-    //     res.end();
-    //   });
-    // } else {
-    //   var lastVersion =  req.headers["lastversion"];
-    //   var currentVersion = await getVersion(repositorypath, filepath)
-    //
-    //   console.log("last version: " + lastVersion);
-    //   console.log("current version: " + currentVersion);
-    //
-    //   // we have version information and there is a conflict
-    //   if (lastVersion && currentVersion && lastVersion !== currentVersion) {
-    //     console.log("[writeFile] CONFLICT DETECTED")
-    //     res.writeHead(409, { // HTTP CONFLICT
-    //       'content-type': 'text/plain',
-    //       'conflictversion': currentVersion
-    //     });
-    //     res.end("Writing conflict detected: " + currentVersion);
-    //     return
-    //   }
+  // if (fullpath.match(/\/$/)){
+  //   mkdirp(fullpath, function(err) {
+  //     if (err) {
+  //       console.log("Error creating dir: " + err);
+  //     }
+  //     console.log("mkdir " + fullpath);
+  //     res.writeHead(200, "OK");
+  //     res.end();
+  //   });
+  // } else {
+  //   var lastVersion =  req.headers["lastversion"];
+  //   var currentVersion = await getVersion(repositorypath, filepath)
+  //
+  //   console.log("last version: " + lastVersion);
+  //   console.log("current version: " + currentVersion);
+  //
+  //   // we have version information and there is a conflict
+  //   if (lastVersion && currentVersion && lastVersion !== currentVersion) {
+  //     console.log("[writeFile] CONFLICT DETECTED")
+  //     res.writeHead(409, { // HTTP CONFLICT
+  //       'content-type': 'text/plain',
+  //       'conflictversion': currentVersion
+  //     });
+  //     res.end("Writing conflict detected: " + currentVersion);
+  //     return
+  //   }
 
 
 }
 
 function readFile(repositorypath, filepath, res) {
-  var sPath = repositorypath.replace(/\/\//g,"/");
+  var sPath = repositorypath.replace(/\/\//g, "/");
   if (repositorypath.indexOf('.') === -1 && filepath.indexOf('.') > -1) {
-      sPath = path.join(repositorypath, filepath);
+    sPath = path.join(repositorypath, filepath);
   }
   sPath = sPath.replace(/\\\\/g, "\\");
 
@@ -378,7 +387,7 @@ function listOptions(sSourcePath, sPath, req, res) {
         return listVersions(repositorypath, filepath, res);
       }
       // type, name, size
-      var result = { type: "file" };
+      var result = {type: "file"};
       result.name = sSourcePath.replace(/.*\//, "");
       result.size = stats.size;
 
@@ -494,10 +503,12 @@ function gitControl(sPath, req, res, cb) {
     cmd = server + "/bin/lively4branch.sh '" + repository + "' " + ("'" + username + "' '" + password + "' '" + email + "' '" + branch + "'");
     respondWithCMD(cmd, res, null, dryrun);
   } else if (sPath.match(/\/_git\/merge/)) {
-    cmd = server + "/bin/lively4merge.sh '" + lively4DirUnix + "/" + repository + "' " + ("'" + username + "' '" + password + "' '" + email + "' '" + branch + "'");;
+    cmd = server + "/bin/lively4merge.sh '" + lively4DirUnix + "/" + repository + "' " + ("'" + username + "' '" + password + "' '" + email + "' '" + branch + "'");
+    ;
     respondWithCMD(cmd, res, null, dryrun);
   } else if (sPath.match(/\/_git\/squash/)) {
-    cmd = server + "/bin/lively4squash.sh '" + lively4DirUnix + "/" + repository + "' " + ("'" + username + "' '" + password + "' '" + email + "' '" + branch + "' '" + msg + "'");;
+    cmd = server + "/bin/lively4squash.sh '" + lively4DirUnix + "/" + repository + "' " + ("'" + username + "' '" + password + "' '" + email + "' '" + branch + "' '" + msg + "'");
+    ;
     respondWithCMD(cmd, res, null, dryrun);
   } else if (sPath.match(/\/_git\/delete/)) {
     cmd = server + "/bin/lively4deleterepository.sh '" + lively4DirUnix + "/" + repository + "'";
@@ -537,25 +548,25 @@ function searchFilesWithIndex(sPath, req, res) {
       lunrSearch.createIndex(location).then(function () {
         // index is available
         console.log("[Search] index available in location: " + location);
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ indexStatus: "available" }));
+        res.writeHead(200, {"Content-Type": "application/json"});
+        res.end(JSON.stringify({indexStatus: "available"}));
       }, function (err) {
         // index not available yet
         console.log("[Search] index not yet available in location: " + location + " Error: " + err);
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ indexStatus: "indexing" }));
+        res.writeHead(200, {"Content-Type": "application/json"});
+        res.end(JSON.stringify({indexStatus: "indexing"}));
       });
     } catch (e) {
       console.log("[Search] could not create index, but conitue anyway: " + e);
-      res.writeHead(500, { "Content-Type": "application/json" });
+      res.writeHead(500, {"Content-Type": "application/json"});
       res.end("Creating index failed due: " + e);
       return;
     }
   } else if (sPath.match(/\/api\/search\/statusIndex.*/)) {
     lunrSearch.getStatus(location).then(function (status) {
       console.log("[Search] check index status for " + location + ": " + status);
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ indexStatus: status }));
+      res.writeHead(200, {"Content-Type": "application/json"});
+      res.end(JSON.stringify({indexStatus: status}));
     });
   } else if (sPath.match(/\/api\/search\/removeIndex.*/)) {
     lunrSearch.removeIndex(location).then(function () {
@@ -567,7 +578,7 @@ function searchFilesWithIndex(sPath, req, res) {
     var pattern = query.q;
     console.log("[Search] search: " + pattern + " in location: " + location);
     lunrSearch.search(location, pattern).then(function (results) {
-      res.writeHead(200, { "Content-Type": "application/json" });
+      res.writeHead(200, {"Content-Type": "application/json"});
       res.end(JSON.stringify(results));
     }).catch(function (err) {
       // no index for location available
