@@ -130,7 +130,7 @@ function writeFile(repositorypath, filepath, req, res) {
   if (repositorypath.indexOf('.') === -1 && filepath.indexOf('.') > -1) {
       sPath = path.join(repositorypath, filepath);
   }
-  fullpath = sPath.replace(/\\\\/g, "\\");
+  var fullpath = sPath.replace(/\\\\/g, "\\");
 
   console.log("write file: " + fullpath);
   var fullBody = '';
