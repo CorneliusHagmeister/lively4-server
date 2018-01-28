@@ -165,7 +165,7 @@ function writeFile(repositorypath, filepath, req, res) {
         res.writeHead(200)
         res.end("Successfully saved")
       }
-    }
+    })
   })
 
   // if (fullpath.match(/\/$/)){
