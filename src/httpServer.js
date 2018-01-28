@@ -12,7 +12,9 @@ var _regenerator = require("babel-runtime/regenerator");
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {default: obj};
+}
 
 var http = require("http");
 var fs = require("fs");
@@ -126,9 +128,9 @@ function writeFile(repositorypath, filepath, req, res) {
   repositorypath = repositorypath.substring(0, repositorypath.length - filepath.length - 1);
   // var fullpath = path.join(repositorypath, filepath);
   // fullpath = fullpath.replace(/\/\//g, "/");
-  var sPath = repositorypath.replace(/\/\//g,"/");
+  var sPath = repositorypath.replace(/\/\//g, "/");
   if (repositorypath.indexOf('.') === -1 && filepath.indexOf('.') > -1) {
-      sPath = path.join(repositorypath, filepath);
+    sPath = path.join(repositorypath, filepath);
   }
   var fullpath = sPath.replace(/\\\\/g, "\\");
 
@@ -151,136 +153,56 @@ function writeFile(repositorypath, filepath, req, res) {
   });
 
   //after transmission, write file to disk
-  req.on('end', function _callee() {
-    var lastVersion, currentVersion;
-    return _regenerator2.default.async(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            if (!fullpath.match(/\/$/)) {
-              _context.next = 4;
-              break;
-            }
 
-            mkdirp(fullpath, function (err) {
-              if (err) {
-                console.log("Error creating dir: " + err);
-              }
-              console.log("mkdir " + fullpath);
-              res.writeHead(200, "OK");
-              res.end();
-            });
-            _context.next = 17;
-            break;
-
-          case 4:
-            lastVersion = req.headers["lastversion"];
-            _context.next = 7;
-            return _regenerator2.default.awrap(getVersion(repositorypath, filepath));
-
-          case 7:
-            currentVersion = _context.sent;
-
-
-            console.log("last version: " + lastVersion);
-            console.log("current version: " + currentVersion);
-
-            // we have version information and there is a conflict
-
-            if (!(lastVersion && currentVersion && lastVersion !== currentVersion)) {
-              _context.next = 15;
-              break;
-            }
-
-            console.log("[writeFile] CONFLICT DETECTED");
-            res.writeHead(409, { // HTTP CONFLICT
-              'content-type': 'text/plain',
-              'conflictversion': currentVersion
-            });
-            res.end("Writing conflict detected: " + currentVersion);
-            return _context.abrupt("return");
-
-          case 15:
-
-            console.log("size " + fullBody.length);
-
-            // console.log("fullBody: " + fullBody)
-            fs.writeFile(fullpath, fullBody, fullpath.match(isTextRegEx) ? undefined : "binary", function (err) {
-              if (err) {
-                // throw err;
-                console.log(err);
-                return;
-              }
-
-              if (indexFiles) {
-                try {
-                  lunrSearch.addFile(fullpath); // #TODO #BUG what path does lunr accept?
-                } catch (e) {
-                  console.log("Error indexing file, but conitue anyway: " + e);
-                }
-              }
-              if (autoCommit) {
-
-                // var username =      req.headers.gitusername;
-                // var email =         req.headers.gitemail;
-                // var password =      req.headers.gitpassword; // not used yet
-
-                // var authCmd = "";
-                // if (username) authCmd += `git config user.name '${username}'; `
-                // if (email) authCmd += `git config user.email '${email}'; `
-                // console.log("EMAIL " + email + " USER " + username)
-
-                // #TODO maybe we should ask for github credetials here too?
-                // let cmd  = `cd "${repositorypath}"; ${authCmd} git add "${filepath}"; git commit -m "AUTO-COMMIT ${filepath}"`;
-                var cmd = "cd \"" + repositorypath + "\"";
-                console.log("[AUTO-COMMIT] " + cmd);
-                exec(cmd, function (error, stdout, stderr) {
-                  console.log("stdout: " + stdout);
-                  console.log("stderr: " + stderr);
-                  if (error) {
-                    console.log("ERROR");
-                    res.writeHead(500, "" + err);
-                    res.end("ERROR: " + stderr);
-                  } else {
-                    // return the hash for the commit, we just created
-
-                    var fileVersionCmd = "cd \"" + repositorypath + "\"";
-                    console.log("cmd: " + fileVersionCmd);
-                    exec(fileVersionCmd, function (error, stdout, stderr) {
-                      console.log("New version: " + stdout);
-                      if (error) {
-                        res.writeHead(500);
-                        res.end("could not retrieve new version... somthing went wrong: " + stdout + " " + stderr);
-                      } else {
-                        res.writeHead(200, {
-                          'content-type': 'text/plain',
-                          'fileversion': stdout
-                        });
-                        res.end("Created new version: " + stdout);
-                      }
-                    });
-                  }
-                });
-              } else {
-                console.log("saved " + fullpath);
-                res.writeHead(200, "OK");
-                res.end();
-              }
-            });
-
-          case 17:
-          case "end":
-            return _context.stop();
-        }
+  req.on('end', function () {
+    // var username=fullBody.user
+    fullBody = JSON.parse(fullBody.data)
+    console.log("path "+fullpath)
+    fs.writeFile(fullpath, fullBody, function (writeErr) {
+      if (writeErr) {
+        res.writeHead(400)
+        res.end(writeErr)
+      } else {
+        res.writeHead(200)
+        res.end("Successfully saved")
       }
-    }, null, this);
-  });
+    })
+  })
+
+  // if (fullpath.match(/\/$/)){
+  //   mkdirp(fullpath, function(err) {
+  //     if (err) {
+  //       console.log("Error creating dir: " + err);
+  //     }
+  //     console.log("mkdir " + fullpath);
+  //     res.writeHead(200, "OK");
+  //     res.end();
+  //   });
+  // } else {
+  //   var lastVersion =  req.headers["lastversion"];
+  //   var currentVersion = await getVersion(repositorypath, filepath)
+  //
+  //   console.log("last version: " + lastVersion);
+  //   console.log("current version: " + currentVersion);
+  //
+  //   // we have version information and there is a conflict
+  //   if (lastVersion && currentVersion && lastVersion !== currentVersion) {
+  //     console.log("[writeFile] CONFLICT DETECTED")
+  //     res.writeHead(409, { // HTTP CONFLICT
+  //       'content-type': 'text/plain',
+  //       'conflictversion': currentVersion
+  //     });
+  //     res.end("Writing conflict detected: " + currentVersion);
+  //     return
+  //   }
+
+
 }
 
 function readFile(repositorypath, filepath, res) {
-  var sPath = repositorypath.replace(/\/\//g,"/");
+  var sPath = repositorypath.replace(/\/\//g, "/");
   if (repositorypath.indexOf('.') === -1 && filepath.indexOf('.') > -1) {
-      sPath = path.join(repositorypath, filepath);
+    sPath = path.join(repositorypath, filepath);
   }
   sPath = sPath.replace(/\\\\/g, "\\");
 
@@ -466,7 +388,7 @@ function listOptions(sSourcePath, sPath, req, res) {
         return listVersions(repositorypath, filepath, res);
       }
       // type, name, size
-      var result = { type: "file" };
+      var result = {type: "file"};
       result.name = sSourcePath.replace(/.*\//, "");
       result.size = stats.size;
 
@@ -582,10 +504,12 @@ function gitControl(sPath, req, res, cb) {
     cmd = server + "/bin/lively4branch.sh '" + repository + "' " + ("'" + username + "' '" + password + "' '" + email + "' '" + branch + "'");
     respondWithCMD(cmd, res, null, dryrun);
   } else if (sPath.match(/\/_git\/merge/)) {
-    cmd = server + "/bin/lively4merge.sh '" + lively4DirUnix + "/" + repository + "' " + ("'" + username + "' '" + password + "' '" + email + "' '" + branch + "'");;
+    cmd = server + "/bin/lively4merge.sh '" + lively4DirUnix + "/" + repository + "' " + ("'" + username + "' '" + password + "' '" + email + "' '" + branch + "'");
+    ;
     respondWithCMD(cmd, res, null, dryrun);
   } else if (sPath.match(/\/_git\/squash/)) {
-    cmd = server + "/bin/lively4squash.sh '" + lively4DirUnix + "/" + repository + "' " + ("'" + username + "' '" + password + "' '" + email + "' '" + branch + "' '" + msg + "'");;
+    cmd = server + "/bin/lively4squash.sh '" + lively4DirUnix + "/" + repository + "' " + ("'" + username + "' '" + password + "' '" + email + "' '" + branch + "' '" + msg + "'");
+    ;
     respondWithCMD(cmd, res, null, dryrun);
   } else if (sPath.match(/\/_git\/delete/)) {
     cmd = server + "/bin/lively4deleterepository.sh '" + lively4DirUnix + "/" + repository + "'";
@@ -625,25 +549,25 @@ function searchFilesWithIndex(sPath, req, res) {
       lunrSearch.createIndex(location).then(function () {
         // index is available
         console.log("[Search] index available in location: " + location);
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ indexStatus: "available" }));
+        res.writeHead(200, {"Content-Type": "application/json"});
+        res.end(JSON.stringify({indexStatus: "available"}));
       }, function (err) {
         // index not available yet
         console.log("[Search] index not yet available in location: " + location + " Error: " + err);
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ indexStatus: "indexing" }));
+        res.writeHead(200, {"Content-Type": "application/json"});
+        res.end(JSON.stringify({indexStatus: "indexing"}));
       });
     } catch (e) {
       console.log("[Search] could not create index, but conitue anyway: " + e);
-      res.writeHead(500, { "Content-Type": "application/json" });
+      res.writeHead(500, {"Content-Type": "application/json"});
       res.end("Creating index failed due: " + e);
       return;
     }
   } else if (sPath.match(/\/api\/search\/statusIndex.*/)) {
     lunrSearch.getStatus(location).then(function (status) {
       console.log("[Search] check index status for " + location + ": " + status);
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ indexStatus: status }));
+      res.writeHead(200, {"Content-Type": "application/json"});
+      res.end(JSON.stringify({indexStatus: status}));
     });
   } else if (sPath.match(/\/api\/search\/removeIndex.*/)) {
     lunrSearch.removeIndex(location).then(function () {
@@ -655,7 +579,7 @@ function searchFilesWithIndex(sPath, req, res) {
     var pattern = query.q;
     console.log("[Search] search: " + pattern + " in location: " + location);
     lunrSearch.search(location, pattern).then(function (results) {
-      res.writeHead(200, { "Content-Type": "application/json" });
+      res.writeHead(200, {"Content-Type": "application/json"});
       res.end(JSON.stringify(results));
     }).catch(function (err) {
       // no index for location available
