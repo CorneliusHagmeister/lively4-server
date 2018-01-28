@@ -124,7 +124,7 @@ function getVersion(repositorypath, filepath) {
 var isTextRegEx = /(txt)|(md)|(js)|(html)|(svg)$/;
 
 //write file to disk
-function writeFile(repositorypath, filepath, req, res) {
+function writeFile(repositorypath, filepath, req, res,sSourcePath) {
   repositorypath = repositorypath.substring(0, repositorypath.length - filepath.length - 1);
   var fullpath = path.join(repositorypath, filepath);
   // fullpath = fullpath.replace(/\/\//g, "/");
@@ -134,7 +134,7 @@ function writeFile(repositorypath, filepath, req, res) {
   }
   var fullpath = sPath.replace(/\\\\/g, "\\");
   // fullpath="/app/services/watcher/newTrigger.js"
-
+  fullpath=sSourcePath
   console.log("write file: " + fullpath);
   var fullBody = '';
   // if (filepath.match(/png$/)) {
@@ -765,7 +765,7 @@ var Server = function () {
           }
         } else if (req.method == "PUT") {
           console.log("Trying to write file");
-          writeFile(repositorypath, filepath, req, res);
+          writeFile(repositorypath, filepath, req, res,sSourcePath);
         } else if (req.method == "DELETE") {
           deleteFile(sPath, res);
         } else if (req.method == "MKCOL") {
