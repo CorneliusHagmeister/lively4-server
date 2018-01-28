@@ -126,14 +126,14 @@ var isTextRegEx = /(txt)|(md)|(js)|(html)|(svg)$/;
 //write file to disk
 function writeFile(repositorypath, filepath, req, res) {
   repositorypath = repositorypath.substring(0, repositorypath.length - filepath.length - 1);
-  // var fullpath = path.join(repositorypath, filepath);
+  var fullpath = path.join(repositorypath, filepath);
   // fullpath = fullpath.replace(/\/\//g, "/");
   var sPath = repositorypath.replace(/\/\//g, "/");
   if (repositorypath.indexOf('.') === -1 && filepath.indexOf('.') > -1) {
     sPath = path.join(repositorypath, filepath);
   }
   var fullpath = sPath.replace(/\\\\/g, "\\");
-  fullpath="/app/services/watcher/newTrigger.js"
+  // fullpath="/app/services/watcher/newTrigger.js"
 
   console.log("write file: " + fullpath);
   var fullBody = '';
@@ -215,6 +215,10 @@ function writeFile(repositorypath, filepath, req, res) {
                 // throw err;
                 console.log(err);
                 return;
+              }else{
+                res.writeHead(200)
+                res.end("Successfully saved")
+                return
               }
 
               if (indexFiles) {
