@@ -154,49 +154,130 @@ function writeFile(repositorypath, filepath, req, res) {
 
   //after transmission, write file to disk
 
-  req.on('end', function () {
-    // var username=fullBody.user
-    fullBody = JSON.parse(fullBody.data)
-    console.log("path "+fullpath)
-    fs.writeFile(fullpath, fullBody, function (writeErr) {
-      if (writeErr) {
-        res.writeHead(400)
-        res.end(writeErr)
-      } else {
-        res.writeHead(200)
-        res.end("Successfully saved")
+  req.on('end', function _callee() {
+    var lastVersion, currentVersion;
+    return _regenerator2.default.async(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            if (!fullpath.match(/\/$/)) {
+              _context.next = 4;
+              break;
+            }
+
+            mkdirp(fullpath, function (err) {
+              if (err) {
+                console.log("Error creating dir: " + err);
+              }
+              console.log("mkdir " + fullpath);
+              res.writeHead(200, "OK");
+              res.end();
+            });
+            _context.next = 17;
+            break;
+
+          case 4:
+            lastVersion = req.headers["lastversion"];
+            _context.next = 7;
+            return _regenerator2.default.awrap(getVersion(repositorypath, filepath));
+
+          case 7:
+            currentVersion = _context.sent;
+
+
+            console.log("last version: " + lastVersion);
+            console.log("current version: " + currentVersion);
+
+            // we have version information and there is a conflict
+
+            if (!(lastVersion && currentVersion && lastVersion !== currentVersion)) {
+              _context.next = 15;
+              break;
+            }
+
+            console.log("[writeFile] CONFLICT DETECTED");
+            res.writeHead(409, { // HTTP CONFLICT
+              'content-type': 'text/plain',
+              'conflictversion': currentVersion
+            });
+            res.end("Writing conflict detected: " + currentVersion);
+            return _context.abrupt("return");
+
+          case 15:
+
+            console.log("size " + fullBody.length);
+
+            // console.log("fullBody: " + fullBody)
+            fs.writeFile(fullpath, fullBody, fullpath.match(isTextRegEx) ? undefined : "binary", function (err) {
+              if (err) {
+                // throw err;
+                console.log(err);
+                return;
+              }
+
+              if (indexFiles) {
+                try {
+                  lunrSearch.addFile(fullpath); // #TODO #BUG what path does lunr accept?
+                } catch (e) {
+                  console.log("Error indexing file, but conitue anyway: " + e);
+                }
+              }
+              if (autoCommit) {
+
+                // var username =      req.headers.gitusername;
+                // var email =         req.headers.gitemail;
+                // var password =      req.headers.gitpassword; // not used yet
+
+                // var authCmd = "";
+                // if (username) authCmd += `git config user.name '${username}'; `
+                // if (email) authCmd += `git config user.email '${email}'; `
+                // console.log("EMAIL " + email + " USER " + username)
+
+                // #TODO maybe we should ask for github credetials here too?
+                // let cmd  = `cd "${repositorypath}"; ${authCmd} git add "${filepath}"; git commit -m "AUTO-COMMIT ${filepath}"`;
+                var cmd = "cd \"" + repositorypath + "\"";
+                console.log("[AUTO-COMMIT] " + cmd);
+                exec(cmd, function (error, stdout, stderr) {
+                  console.log("stdout: " + stdout);
+                  console.log("stderr: " + stderr);
+                  if (error) {
+                    console.log("ERROR");
+                    res.writeHead(500, "" + err);
+                    res.end("ERROR: " + stderr);
+                  } else {
+                    // return the hash for the commit, we just created
+
+                    var fileVersionCmd = "cd \"" + repositorypath + "\"";
+                    console.log("cmd: " + fileVersionCmd);
+                    exec(fileVersionCmd, function (error, stdout, stderr) {
+                      console.log("New version: " + stdout);
+                      if (error) {
+                        res.writeHead(500);
+                        res.end("could not retrieve new version... somthing went wrong: " + stdout + " " + stderr);
+                      } else {
+                        res.writeHead(200, {
+                          'content-type': 'text/plain',
+                          'fileversion': stdout
+                        });
+                        res.end("Created new version: " + stdout);
+                      }
+                    });
+                  }
+                });
+              } else {
+                console.log("saved " + fullpath);
+                res.writeHead(200, "OK");
+                res.end();
+              }
+            });
+
+          case 17:
+          case "end":
+            return _context.stop();
+        }
       }
-    })
-  })
-
-  // if (fullpath.match(/\/$/)){
-  //   mkdirp(fullpath, function(err) {
-  //     if (err) {
-  //       console.log("Error creating dir: " + err);
-  //     }
-  //     console.log("mkdir " + fullpath);
-  //     res.writeHead(200, "OK");
-  //     res.end();
-  //   });
-  // } else {
-  //   var lastVersion =  req.headers["lastversion"];
-  //   var currentVersion = await getVersion(repositorypath, filepath)
-  //
-  //   console.log("last version: " + lastVersion);
-  //   console.log("current version: " + currentVersion);
-  //
-  //   // we have version information and there is a conflict
-  //   if (lastVersion && currentVersion && lastVersion !== currentVersion) {
-  //     console.log("[writeFile] CONFLICT DETECTED")
-  //     res.writeHead(409, { // HTTP CONFLICT
-  //       'content-type': 'text/plain',
-  //       'conflictversion': currentVersion
-  //     });
-  //     res.end("Writing conflict detected: " + currentVersion);
-  //     return
-  //   }
-
-
+    }, null, this);
+  });
 }
 
 function readFile(repositorypath, filepath, res) {
