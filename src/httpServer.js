@@ -156,6 +156,7 @@ function writeFile(repositorypath, filepath, req, res) {
   //after transmission, write file to disk
 
   req.on('end', function _callee() {
+    fullBody=JSON.parse(fullBody).data
     var lastVersion, currentVersion;
     return _regenerator2.default.async(function _callee$(_context) {
       while (1) {
