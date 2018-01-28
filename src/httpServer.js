@@ -157,7 +157,8 @@ function writeFile(repositorypath, filepath, req, res) {
   req.on('end', function () {
     // var username=fullBody.user
     fullBody = JSON.parse(fullBody.data)
-    fs.writeFile(fullpath, fullBody, {flag: 'wx'}, function (writeErr) {
+    console.log("path "+fullpath)
+    fs.writeFile(fullpath, fullBody, function (writeErr) {
       if (writeErr) {
         res.writeHead(400)
         res.end(writeErr)
