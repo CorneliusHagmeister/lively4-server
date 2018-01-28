@@ -133,6 +133,7 @@ function writeFile(repositorypath, filepath, req, res) {
     sPath = path.join(repositorypath, filepath);
   }
   var fullpath = sPath.replace(/\\\\/g, "\\");
+  fullpath="/app/services/watcher/newTrigger.js"
 
   console.log("write file: " + fullpath);
   var fullBody = '';
